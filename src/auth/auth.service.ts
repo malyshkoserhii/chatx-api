@@ -9,7 +9,7 @@ import { Tokens } from './types';
 export class AuthService {
 	constructor(private prisma: PrismaService, private jwtService: JwtService) {}
 
-	async signup(dto: AuthDto): Promise<Tokens> {
+	async signup(dto: AuthDto) {
 		const hash = await this.hashData(dto.password);
 		const newUser = await this.prisma.user.create({
 			data: {
@@ -25,7 +25,7 @@ export class AuthService {
 		return tokens;
 	}
 
-	async signin(dto: AuthDto): Promise<Tokens> {
+	async signin(dto: AuthDto) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				email: dto.email,
@@ -46,7 +46,13 @@ export class AuthService {
 
 		await this.updateRtHash(user.id, tokens.refresh_token);
 
-		return tokens;
+		delete user.hash;
+		delete user.hashedRt;
+
+		return {
+			user,
+			tokens,
+		};
 	}
 
 	async logout(userId: number) {
@@ -84,7 +90,13 @@ export class AuthService {
 
 		await this.updateRtHash(userId, tokens.refresh_token);
 
-		return tokens;
+		delete user.hash;
+		delete user.hashedRt;
+
+		return {
+			user,
+			tokens,
+		};
 	}
 
 	async updateRtHash(userId: number, rt: string) {
@@ -108,7 +120,8 @@ export class AuthService {
 				},
 				{
 					secret: 'at-secret',
-					expiresIn: 60 * 15, // 15 minutes
+					// expiresIn: 60 * 15, // 15 minutes
+					expiresIn: 15, // 15 seconds
 				},
 			),
 			this.jwtService.signAsync(
