@@ -4,13 +4,25 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-	constructor(private prisma: PrismaService, private jwtService: JwtService) {}
+	constructor(
+		private prisma: PrismaService,
+		private jwtService: JwtService,
+		private userService: UserService,
+	) {}
 
 	async signup(dto: AuthDto) {
 		const hash = await this.hashData(dto.password);
+
+		const currentUser = await this.userService.getUserByEmail(dto.email);
+
+		if (currentUser) {
+			throw new ForbiddenException('This email already registered');
+		}
+
 		const newUser = await this.prisma.user.create({
 			data: {
 				email: dto.email,
@@ -26,28 +38,27 @@ export class AuthService {
 	}
 
 	async signin(dto: AuthDto) {
-		const user = await this.prisma.user.findUnique({
+		const isUserExist = await this.prisma.user.findUnique({
 			where: {
 				email: dto.email,
 			},
 		});
 
-		if (!user) {
+		if (!isUserExist) {
 			throw new ForbiddenException('Access denied!');
 		}
 
-		const isPasswordMatch = await bcrypt.compare(dto.password, user.hash);
+		const isPasswordMatch = await bcrypt.compare(dto.password, isUserExist.hash);
 
 		if (!isPasswordMatch) {
 			throw new ForbiddenException('Access denied!');
 		}
 
+		const user = await this.userService.getUserById(isUserExist.id);
+
 		const tokens = await this.getTokens(user.id, user.email);
 
 		await this.updateRtHash(user.id, tokens.refresh_token);
-
-		delete user.hash;
-		delete user.hashedRt;
 
 		return {
 			user,
@@ -121,7 +132,7 @@ export class AuthService {
 				{
 					secret: 'at-secret',
 					// expiresIn: 60 * 15, // 15 minutes
-					expiresIn: 15, // 15 seconds
+					expiresIn: 60 * 60 * 24, // 24 hours
 				},
 			),
 			this.jwtService.signAsync(

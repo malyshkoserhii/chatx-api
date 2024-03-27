@@ -11,6 +11,6 @@ export class UserController {
 	@Get('me')
 	@HttpCode(HttpStatus.OK)
 	getUser(@GetCurrentUserId() userId: number) {
-		return this.userService.getUser(userId);
+		return this.userService.getUserById(userId);
 	}
 }
