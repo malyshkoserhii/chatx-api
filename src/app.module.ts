@@ -4,9 +4,11 @@ import { PrismaModule } from './prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './common/guards';
 import { UserModule } from './user/user.module';
+import { FollowsModule } from './follows/follows.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
-	imports: [AuthModule, PrismaModule, UserModule],
+	imports: [AuthModule, PrismaModule, UserModule, FollowsModule, FriendsModule],
 	providers: [
 		{
 			provide: APP_GUARD,
