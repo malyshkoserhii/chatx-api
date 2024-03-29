@@ -8,6 +8,13 @@ export class UserController {
 	constructor(private userService: UserService) {}
 
 	@UseGuards(AtGuard)
+	@Get('all')
+	@HttpCode(HttpStatus.OK)
+	getAllUsers(@GetCurrentUserId() userId: number) {
+		return this.userService.getAllUsers(userId);
+	}
+
+	@UseGuards(AtGuard)
 	@Get('me')
 	@HttpCode(HttpStatus.OK)
 	getUser(@GetCurrentUserId() userId: number) {
