@@ -30,6 +30,13 @@ export class FollowsController {
 	}
 
 	@UseGuards(AtGuard)
+	@Post('cancel-invitation')
+	@HttpCode(HttpStatus.OK)
+	cancelInvitation(@Body() body: DeclineFollowerDto, @GetCurrentUserId() userId: number) {
+		return this.followsService.cancelInvitation(body, userId);
+	}
+
+	@UseGuards(AtGuard)
 	@Post('decline-invitation')
 	@HttpCode(HttpStatus.OK)
 	declineInvitation(@Body() body: DeclineFollowerDto, @GetCurrentUserId() userId: number) {

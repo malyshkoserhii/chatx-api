@@ -18,6 +18,8 @@ export class FriendsService {
 					select: {
 						id: true,
 						email: true,
+						createdAt: true,
+						updatedAt: true,
 					},
 				},
 			},

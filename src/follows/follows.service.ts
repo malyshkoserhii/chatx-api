@@ -30,6 +30,21 @@ export class FollowsService {
 		};
 	}
 
+	async cancelInvitation(body: DeclineFollowerDto, userId: number) {
+		await this.prismaService.follows.delete({
+			where: {
+				followingId_followedById: {
+					followedById: userId,
+					followingId: body.myFollowerUserId,
+				},
+			},
+		});
+
+		return {
+			message: 'You declined invitation',
+		};
+	}
+
 	async declineInvitation(body: DeclineFollowerDto, userId: number) {
 		await this.prismaService.follows.delete({
 			where: {
@@ -60,8 +75,6 @@ export class FollowsService {
 			},
 			select: {
 				id: true,
-				createdAt: true,
-				updatedAt: true,
 				email: true,
 			},
 		});
@@ -86,8 +99,6 @@ export class FollowsService {
 			},
 			select: {
 				id: true,
-				createdAt: true,
-				updatedAt: true,
 				email: true,
 			},
 		});

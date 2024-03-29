@@ -45,4 +45,22 @@ export class UserService {
 
 		return user;
 	}
+
+	async getAllUsers(userId: number) {
+		const users = await this.prismaService.user.findMany({
+			where: {
+				id: {
+					not: userId,
+				},
+			},
+			select: {
+				id: true,
+				email: true,
+				createdAt: true,
+				updatedAt: true,
+			},
+		});
+
+		return users;
+	}
 }
