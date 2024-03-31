@@ -6,9 +6,10 @@ import { AtGuard } from './common/guards';
 import { UserModule } from './user/user.module';
 import { FollowsModule } from './follows/follows.module';
 import { FriendsModule } from './friends/friends.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
-	imports: [AuthModule, PrismaModule, UserModule, FollowsModule, FriendsModule],
+	imports: [AuthModule, PrismaModule, UserModule, FollowsModule, FriendsModule, MessagesModule],
 	providers: [
 		{
 			provide: APP_GUARD,
